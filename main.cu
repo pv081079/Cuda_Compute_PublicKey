@@ -3,6 +3,7 @@
 #include <curand_kernel.h>
 #include <cuda_runtime.h>
 #include "secp256k1.cuh"
+#include <ctime>
 
 __global__ void generateRandomPrivateKeyKernel(u64* d_privateKey, unsigned long long seed) {
     int idx = threadIdx.x;
@@ -24,8 +25,10 @@ int main() {
     Point* d_publicKey;
     cudaMalloc((void**)&d_publicKey, sizeof(Point));
 
+    // Generate random seed using current time
+    unsigned long long seed = static_cast<unsigned long long>(time(nullptr));
+
     // Generate random private key on the device
-    unsigned long long seed = 1234ULL; // Use a seed for reproducibility
     generateRandomPrivateKeyKernel<<<1, 4>>>(d_privateKey, seed);
     cudaDeviceSynchronize();
 
